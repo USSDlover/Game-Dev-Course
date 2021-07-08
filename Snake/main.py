@@ -1,4 +1,4 @@
-import math
+import winsound
 import random
 import pygame
 import tkinter as tk
@@ -54,7 +54,7 @@ class Snake(object):
 
             keys = pygame.key.get_pressed()
 
-            for key in keys:
+            for _ in keys:
                 if keys[pygame.K_LEFT]:
                     self.dirnx = -1
                     self.dirny = 0
@@ -136,14 +136,14 @@ def draw_grid(w, _rows, surface):
         x = x + size_between
         y = y + size_between
 
-        pygame.draw.line(surface, (255, 255, 255), (x, 0), (x, w))
-        pygame.draw.line(surface, (255, 255, 255), (0, y), (w, y))
+        pygame.draw.line(surface, (155, 155, 155), (x, 0), (x, w))
+        pygame.draw.line(surface, (155, 155, 155), (0, y), (w, y))
 
 
 def redraw_window(surface):
     global width, rows, s, snack
 
-    surface.fill((0, 0, 0))
+    surface.fill((255, 255, 255))
     s.draw(surface)
     snack.draw(surface)
     draw_grid(width, rows, surface)
@@ -181,8 +181,8 @@ def main():
     height = 500
     rows = 20
     win = pygame.display.set_mode((width, height))
-    s = Snake((255, 0, 0), (10, 10))
-    snack = Cube(random_snack(rows, s), color=(0, 255, 0))
+    s = Snake((155, 155, 255), (10, 10))
+    snack = Cube(random_snack(rows, s), color=(155, 0, 255))
     flag = True
 
     clock = pygame.time.Clock()
@@ -192,12 +192,14 @@ def main():
         clock.tick(10)
         s.move()
         if s.body[0].pos == snack.pos:
+            winsound.PlaySound('score.wav', winsound.SND_ASYNC)
             s.add_cube()
-            snack = Cube(random_snack(rows, s), color=(0, 255, 0))
+            snack = Cube(random_snack(rows, s), color=(155, 0, 255))
 
         for x in range(len(s.body)):
             if s.body[x].pos in list(map(lambda xf: xf.pos, s.body[x + 1:])):
                 print('Score: ', len(s.body))
+                winsound.PlaySound('game-over.wav', winsound.SND_ASYNC)
                 message_box('Game over!', 'Try again...')
                 s.reset((10, 10))
                 break
