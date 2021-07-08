@@ -99,7 +99,20 @@ class Snake(object):
         pass
 
     def add_cube(self):
-        pass
+        tail = self.body[-1]
+        dx, dy = tail.dirnx, tail.dirny
+
+        if dx == 1 and dy == 0:
+            self.body.append(Cube((tail.pos[0] - 1, tail.pos[1])))
+        elif dx == -1 and dy == 0:
+            self.body.append(Cube((tail.pos[0] + 1, tail.pos[1])))
+        elif dx == 0 and dy == 1:
+            self.body.append(Cube((tail.pos[0], tail.pos[1] - 1)))
+        elif dx == 0 and dy == -1:
+            self.body.append(Cube((tail.pos[0], tail.pos[1] + 1)))
+
+        self.body[-1].dirnx = dx
+        self.body[-1].dirny = dy
 
     def draw(self, surface):
         for i, c in enumerate(self.body):
@@ -123,16 +136,26 @@ def draw_grid(w, _rows, surface):
 
 
 def redraw_window(surface):
-    global width, rows, s
+    global width, rows, s, snack
 
     surface.fill((0, 0, 0))
     s.draw(surface)
+    snack.draw(surface)
     draw_grid(width, rows, surface)
     pygame.display.update()
 
 
-def random_snack(_rows, items):
-    pass
+def random_snack(_rows, item):
+    positions = item.body
+
+    while True:
+        x = random.randrange(_rows)
+        y = random.randrange(_rows)
+        if len(list(filter(lambda z: z.pos == (x, y), positions))) > 0:
+            continue
+        else:
+            break
+    return x, y
 
 
 def message_box(subject, content):
@@ -140,13 +163,14 @@ def message_box(subject, content):
 
 
 def main():
-    global width, rows, s
+    global width, rows, s, snack
 
     width = 500
     height = 500
     rows = 20
     win = pygame.display.set_mode((width, height))
     s = Snake((255, 0, 0), (10, 10))
+    snack = Cube(random_snack(rows, s), color=(0, 255, 0))
     flag = True
 
     clock = pygame.time.Clock()
@@ -155,6 +179,9 @@ def main():
         pygame.time.delay(50)
         clock.tick(10)
         s.move()
+        if s.body[0].pos == snack.pos:
+            s.add_cube()
+            snack = Cube(random_snack(rows, s), color=(0, 255, 0))
         redraw_window(win)
 
     pass
